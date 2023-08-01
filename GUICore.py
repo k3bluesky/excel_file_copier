@@ -72,13 +72,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.critical(None, "警告", "未找到文件，请正确填写表格文件所在路径", QMessageBox.Ok)
             return 0
         except ValueError:
-            QMessageBox.critical(None, "警告", "请填写表格文件所在路径", QMessageBox.Ok)
+            QMessageBox.critical(None, "警告", "请正确填写表格文件所在路径", QMessageBox.Ok)
             return 0
 
         try:
             column_num = int(gl_columnNumber) - 1
         except ValueError:
-            QMessageBox.critical(None, "警告", "请填写表格中文件名所在列", QMessageBox.Ok)
+            QMessageBox.critical(None, "警告", "请正确填写表格中文件名所在列，仅能提交数字，列索引从1开始", QMessageBox.Ok)
             return 0
 
         if skip_first_row == 1:
