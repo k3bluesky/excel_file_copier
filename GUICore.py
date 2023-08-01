@@ -5,15 +5,10 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 import os
 import pandas as pd
 
-gl_fileName,gl_lineName,gl_orgDirPath,gl_toDirPath='','','',''
-gl_getFirstLine=0 #0 is don't get
-gl_columnNumber=0 #column 0 start
+log_list = []
 
 
-
-
-
-class MainWindow(QMainWindow,Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -29,19 +24,40 @@ class MainWindow(QMainWindow,Ui_MainWindow):
 
         self.runButton.clicked.connect(self.copyRun)
 
+        self.export_log_button.clicked.connect(self.export_log)
 
+    def export_log(self):
+        dir = QFileDialog()
+        dir.setFileMode(QFileDialog.DirectoryOnly)
+        current_path = os.path.dirname(os.path.abspath(__file__))
+        dir.setDirectory(current_path)
+        try:
+            if dir.exec_():
+                save_path = os.path.join(dir.selectedFiles()[0], "logs.txt")
+        except:
+            print(1)
+            return 0
+        with open(save_path, 'w') as f:
+            count = 1
+            for log in log_list:
+                f.write(log + '\n')
+                if (count % 5 == 0):
+                    print("导出中...." + str(round(count / len(log_list) * 100,2)) + "%/100%")
+                count += 1
+        QMessageBox.warning(None, "提示", "导出完成！", QMessageBox.Ok)
 
 
     def copyRun(self):
-        gl_fileName = self.excelPathLine.text()#
-        #gl_lineName = self.columnNameLine.text()
+        log_list.clear()
+        gl_fileName = self.excelPathLine.text()  #
+        # gl_lineName = self.columnNameLine.text()
         gl_toDirPath = self.toDirPathLine.text()
         gl_orgDirPath = self.orgDirLine.text()
-        gl_columnNumber = self.columnLine.text()#
+        gl_columnNumber = self.columnLine.text()  #
         if (self.yesFirstLine.isChecked()):
-            gl_getFirstLine = 0  #取
+            gl_getFirstLine = 0  # 取
         elif (self.noFirstLine.isChecked()):
-            gl_getFirstLine = 1  #不取
+            gl_getFirstLine = 1  # 不取
 
         # 1. 读取Excel指定列到all_files列表
         file_path = gl_fileName
@@ -70,30 +86,43 @@ class MainWindow(QMainWindow,Ui_MainWindow):
         print(all_files)
         # 2. 复制原文件夹中的文件到目标文件夹
         src_folder = gl_orgDirPath
+
+        try:
+            os.listdir(src_folder)
+        except:
+            QMessageBox.critical(None, "警告", "原文件路径不存在", QMessageBox.Ok)
+            return 0
+
         dst_folder = gl_toDirPath
+
+        try:
+            os.listdir(dst_folder)
+        except:
+            QMessageBox.critical(None, "警告", "复制目标路径不存在", QMessageBox.Ok)
+            return 0
+
         lens = len(all_files)
         logs = 1
         for file in all_files:
 
             src_path = os.path.join(src_folder, file)
-            try:
-                os.listdir(src_path)
-            except:
-                QMessageBox.critical(None, "警告", "原文件路径不存在", QMessageBox.Ok)
-                return 0
+
             if os.path.exists(src_path):
                 dst_path = os.path.join(dst_folder, file)
-                try:
-                    os.listdir(dst_path)
-                except:
-                    QMessageBox.critical(None, "警告", "复制目标路径不存在", QMessageBox.Ok)
-                    return 0
+
                 shucopy(src_path, dst_path)
-                print("(" + str(logs) + "/" + str(lens) + ")" + file + "  移动成功！")#加个log功能
+                temp = "(" + str(logs) + "/" + str(lens) + ")" + file + "  移动成功！"
+                print(temp)  # 加个log功能
+                log_list.append(temp)
             else:
-                print("(" + str(logs) + "/" + str(lens) + ")" + file + "  移动失败，请检查原文件路径是否正确。")
-            logs+=1
-        QMessageBox.warning(None,"提示","运行完成！",QMessageBox.Ok)
+                temp = "(" + str(logs) + "/" + str(lens) + ")" + file + "  移动失败，请检查原文件路径是否正确。"
+                print(temp)
+                log_list.append(temp)
+            logs += 1
+
+        self.export_log_button.setEnabled(True)
+        QMessageBox.warning(None, "提示", "运行完成！", QMessageBox.Ok)
+
 
     def openToPath(self):
         dir = QFileDialog()
