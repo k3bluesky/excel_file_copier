@@ -1,9 +1,10 @@
+import os
 from shutil import copy as shucopy
 
-from GUI import Ui_MainWindow
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
-import os
 import pandas as pd
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+
+from GUI import Ui_MainWindow
 
 log_list = []
 
@@ -43,11 +44,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if len(log_list) <= 100:
                     print("导出中...." + str(round(count / len(log_list) * 100, 2)) + "%/100%")
                 else:
-                    if (count % 5 == 0):
-                        print("导出中...." + str(round(count / len(log_list) * 100,2)) + "%/100%")
+                    if count % 5 == 0:
+                        print("导出中...." + str(round(count / len(log_list) * 100, 2)) + "%/100%")
                 count += 1
         QMessageBox.warning(None, "提示", "导出完成！", QMessageBox.Ok)
-
 
     def copyRun(self):
         log_list.clear()
@@ -56,9 +56,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         gl_toDirPath = self.toDirPathLine.text()
         gl_orgDirPath = self.orgDirLine.text()
         gl_columnNumber = self.columnLine.text()  #
-        if (self.yesFirstLine.isChecked()):
+        if self.yesFirstLine.isChecked():
             gl_getFirstLine = 0  # 取
-        elif (self.noFirstLine.isChecked()):
+        elif self.noFirstLine.isChecked():
             gl_getFirstLine = 1  # 不取
 
         # 1. 读取Excel指定列到all_files列表
@@ -78,7 +78,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             column_num = int(gl_columnNumber) - 1
         except ValueError:
-            QMessageBox.critical(None, "警告", "请正确填写表格中文件名所在列，仅能提交数字，列索引从1开始", QMessageBox.Ok)
+            QMessageBox.critical(None, "警告", "请正确填写表格中文件名所在列，仅能提交数字，列索引从1开始",
+                                 QMessageBox.Ok)
             return 0
 
         if skip_first_row == 1:
@@ -107,24 +108,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logs = 1
         for file in all_files:
 
-            src_path = os.path.join(src_folder, file)
+            src_path = os.path.join(src_folder, str(file))
 
             if os.path.exists(src_path):
                 dst_path = os.path.join(dst_folder, file)
 
                 shucopy(src_path, dst_path)
-                temp = "(" + str(logs) + "/" + str(lens) + ")" + file + "  移动成功！"
+                temp = "(" + str(logs) + "/" + str(lens) + ")" + str(file) + "  移动成功！"
                 print(temp)  # 加个log功能
                 log_list.append(temp)
             else:
-                temp = "(" + str(logs) + "/" + str(lens) + ")" + file + "  移动失败，请检查原文件路径是否正确。"
+                temp = "(" + str(logs) + "/" + str(lens) + ")" + str(file) + "  移动失败，请检查原文件路径是否正确。"
                 print(temp)
                 log_list.append(temp)
             logs += 1
 
         self.export_log_button.setEnabled(True)
         QMessageBox.warning(None, "提示", "运行完成！", QMessageBox.Ok)
-
 
     def openToPath(self):
         dir = QFileDialog()
