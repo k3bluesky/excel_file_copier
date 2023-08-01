@@ -226,14 +226,14 @@
         <bool>true</bool>
        </property>
        <property name="text">
-        <string>有</string>
+        <string>无</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QRadioButton" name="no_button">
        <property name="text">
-        <string>无</string>
+        <string>有</string>
        </property>
       </widget>
      </item>
