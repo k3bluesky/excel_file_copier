@@ -29,8 +29,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def export_log(self):
         dir = QFileDialog()
         dir.setFileMode(QFileDialog.DirectoryOnly)
-        current_path = os.path.dirname(os.path.abspath(__file__))
-        dir.setDirectory(current_path)
+        dir.setDirectory('c:\\users\\')
         try:
             if dir.exec_():
                 save_path = os.path.join(dir.selectedFiles()[0], "logs.txt")
@@ -41,8 +40,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             count = 1
             for log in log_list:
                 f.write(log + '\n')
-                if (count % 5 == 0):
-                    print("导出中...." + str(round(count / len(log_list) * 100,2)) + "%/100%")
+                if len(log_list) <= 100:
+                    print("导出中...." + str(round(count / len(log_list) * 100, 2)) + "%/100%")
+                else:
+                    if (count % 5 == 0):
+                        print("导出中...." + str(round(count / len(log_list) * 100,2)) + "%/100%")
                 count += 1
         QMessageBox.warning(None, "提示", "导出完成！", QMessageBox.Ok)
 
