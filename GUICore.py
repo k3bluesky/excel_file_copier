@@ -16,6 +16,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.yesFirstLine.setChecked(True)
+        self.no_button.setChecked(True)
+
+        self.have_button.clicked.connect(self.change_extension_enable)
+        self.no_button.clicked.connect(self.change_extension_unable)
 
         self.openExclePathButton.clicked.connect(self.openExcPath)
 
@@ -26,6 +30,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.runButton.clicked.connect(self.copyRun)
 
         self.export_log_button.clicked.connect(self.export_log)
+
+    def change_extension_enable(self):
+        self.extension_line.setEnabled(True)
+
+    def change_extension_unable(self):
+        self.extension_line.setEnabled(False)
 
     def export_log(self):
         dir = QFileDialog()
@@ -51,15 +61,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def copyRun(self):
         log_list.clear()
+        gl_extension = self.extension_line.text()
         gl_fileName = self.excelPathLine.text()  #
         # gl_lineName = self.columnNameLine.text()
         gl_toDirPath = self.toDirPathLine.text()
         gl_orgDirPath = self.orgDirLine.text()
         gl_columnNumber = self.columnLine.text()  #
         if self.yesFirstLine.isChecked():
-            gl_getFirstLine = 0  # 取
+            gl_getFirstLine = 1  # 取
         elif self.noFirstLine.isChecked():
-            gl_getFirstLine = 1  # 不取
+            gl_getFirstLine = 0  # 不取
+
+        if self.have_button.isChecked():
+            gl_set_extension = 1  # 加
+        elif self.no_button.isChecked():
+            gl_set_extension = 0  # 不加
 
         # 1. 读取Excel指定列到all_files列表
         file_path = gl_fileName
@@ -82,7 +98,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                  QMessageBox.Ok)
             return 0
 
-        if skip_first_row == 1:
+        if skip_first_row == 0:
             all_files = df.iloc[1:, column_num].tolist()
         else:
             all_files = df.iloc[:, column_num].tolist()
@@ -107,7 +123,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         lens = len(all_files)
         logs = 1
         for file in all_files:
-
+            if gl_set_extension == 1:
+                file = file + gl_extension
             src_path = os.path.join(src_folder, str(file))
 
             if os.path.exists(src_path):
